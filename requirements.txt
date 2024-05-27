@@ -1,5 +1,6 @@
-streamlit
-gspread
-google-auth
-google-auth-oauthlib
-streamlit-gsheets
+streamlit==1.22.0
+gspread==5.8.0
+google-auth==2.15.0
+google-auth-oauthlib==0.7.1
+pandas==1.3.0
+st-gsheets-connection==0.0.4
