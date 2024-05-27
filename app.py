@@ -1,6 +1,6 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+from streamlit_gsheets import GSheetsConnection
 
 # Create a connection object.
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -22,8 +22,11 @@ def increment_number():
         # Set the new number in the DataFrame
         df.iloc[0, 0] = new_number
     
-    # Write the updated DataFrame to the Google Sheet
-    conn.write(df)
+    # Convert DataFrame to CSV format
+    csv_data = df.to_csv(index=False)
+    
+    # Update the Google Sheet with the new CSV data
+    conn.write(csv_data)
 
 # Main Streamlit app
 def main():
@@ -34,7 +37,7 @@ def main():
     if df.empty:
         current_number = 0
     else:
-        current_number = df.iloc[0, 0]  
+        current_number = df.iloc[0, 0]
     st.write(f"Current number: {current_number}")
     
     # Button to increment the number
