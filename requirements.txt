@@ -1,5 +1,4 @@
+st-gsheets-connection
 streamlit
 gspread
-oauth2client
 google-auth
-pandas
