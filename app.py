@@ -10,13 +10,13 @@ def increment_number():
     df = conn.read()
     
     # Get the current number
-    current_number = df.iloc[0, 1]  # Assuming the number is in the second column of the first row
+    current_number = df.iloc[1, 1]  # elso sor elso oszlop?
     
     # Increment the number
     new_number = current_number + 1
     
     # Update the Google Sheet with the new number
-    df.iloc[0, 1] = new_number
+    df.iloc[1, 1] = new_number
     conn.write(df)
 
 # Main Streamlit app
@@ -25,7 +25,7 @@ def main():
     
     # Display the current number from the Google Sheet
     df = conn.read()
-    current_number = df.iloc[0, 1]  # Assuming the number is in the second column of the first row
+    current_number = df.iloc[1, 1]  
     st.write(f"Current number: {current_number}")
     
     # Button to increment the number
