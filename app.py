@@ -1,29 +1,21 @@
 import streamlit as st
 import gspread
 from google.oauth2 import service_account
-import pandas as pd
-import toml
 
 def load_google_credentials():
-    # Load credentials from secrets.toml
-    secrets = toml.load("secrets.toml")
-    google_sheets_secrets = secrets["google_sheets"]
-
-    creds = service_account.Credentials.from_service_account_info(
-        {
-            "type": google_sheets_secrets["type"],
-            "project_id": google_sheets_secrets["project_id"],
-            "private_key_id": google_sheets_secrets["private_key_id"],
-            "private_key": google_sheets_secrets["private_key"],
-            "client_email": google_sheets_secrets["client_email"],
-            "client_id": google_sheets_secrets["client_id"],
-            "auth_uri": google_sheets_secrets["auth_uri"],
-            "token_uri": google_sheets_secrets["token_uri"],
-            "auth_provider_x509_cert_url": google_sheets_secrets["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": google_sheets_secrets["client_x509_cert_url"]
-        }
-    )
-    return creds
+    secrets = st.secrets["google_sheets"]
+    return {
+        "type": secrets["type"],
+        "project_id": secrets["project_id"],
+        "private_key_id": secrets["private_key_id"],
+        "private_key": secrets["private_key"],
+        "client_email": secrets["client_email"],
+        "client_id": secrets["client_id"],
+        "auth_uri": secrets["auth_uri"],
+        "token_uri": secrets["token_uri"],
+        "auth_provider_x509_cert_url": secrets["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": secrets["client_x509_cert_url"],
+    }
 
 def increment_number(sheet):
     # Read the current number from the first cell (A1)
@@ -41,18 +33,14 @@ def increment_number(sheet):
     # Update the cell with the new number
     sheet.update_cell(1, 1, new_number)
 
-# Main Streamlit app
 def main():
     st.title("Increment Number App")
     
-    # Initialize a connection to Google Sheets
+    # Load Google Sheets credentials
     creds = load_google_credentials()
-    client = gspread.authorize(creds)
+    client = gspread.service_account_from_dict(creds)
+    sheet = client.open("gombszamlalo").sheet1  # Replace with your actual sheet name
 
-    # Open the Google Sheet by name
-    sheet_name = "Your Google Sheet Name"  # Replace with your actual sheet name
-    sheet = client.open(sheet_name).sheet1
-    
     # Display the current number from the Google Sheet
     current_number = sheet.cell(1, 1).value
     if not current_number:
