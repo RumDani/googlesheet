@@ -1,46 +1,57 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
+from google.oauth2 import service_account
+import gspread
 import pandas as pd
+import json
 
-# Create a connection object.
-conn = st.connection("gsheets", type=GSheetsConnection)
+# Load the service account key JSON file from the secret file
+with open('/path/to/your/secrets/service_account.json') as f:
+    creds_dict = json.load(f)
 
-# Function to increment the number in the Google Sheet
+creds = service_account.Credentials.from_service_account_info(creds_dict)
+
+# Initialize a connection to Google Sheets
+client = gspread.authorize(creds)
+
+# Open the Google Sheet by name
+sheet = client.open("Your Google Sheet Name").sheet1  # Replace with your actual sheet name
+
 def increment_number():
-    # Read the data from the Google Sheet
-    df = conn.read()
+    # Read the current number from the first cell (A1)
+    current_number = sheet.cell(1, 1).value
     
-    # Check if the DataFrame is empty
-    if df.empty:
-        # If DataFrame is empty, create a new DataFrame with one row and one column
-        df = pd.DataFrame([[0]], columns=["Number"])
+    # If the cell is empty, start with 0
+    if not current_number:
+        current_number = 0
     else:
-        # If DataFrame is not empty, get the current number
-        current_number = df.iloc[0, 0]
-        # Increment the number
-        new_number = current_number + 1
-        # Set the new number in the DataFrame
-        df.iloc[0, 0] = new_number
+        current_number = int(current_number)
     
-    # Write the updated DataFrame to the Google Sheet
-    conn.write(df)
+    # Increment the number
+    new_number = current_number + 1
+    
+    # Update the cell with the new number
+    sheet.update_cell(1, 1, new_number)
 
 # Main Streamlit app
 def main():
     st.title("Increment Number App")
     
     # Display the current number from the Google Sheet
-    df = conn.read()
-    if df.empty:
+    current_number = sheet.cell(1, 1).value
+    if not current_number:
         current_number = 0
     else:
-        current_number = df.iloc[0, 0]  
+        current_number = int(current_number)
+    
     st.write(f"Current number: {current_number}")
     
     # Button to increment the number
     if st.button("Increment Number"):
         increment_number()
         st.write("Number incremented successfully!")
+        # Display the updated number
+        current_number = sheet.cell(1, 1).value
+        st.write(f"New number: {current_number}")
 
 if __name__ == "__main__":
     main()
