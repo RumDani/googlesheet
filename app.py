@@ -1,40 +1,46 @@
 import streamlit as st
-import gspread
-from google.oauth2.service_account import Credentials
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
 
+# Create a connection object.
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# Function to increment the number in the Google Sheet
+def increment_number():
+    # Read the data from the Google Sheet
+    df = conn.read()
+    
+    # Check if the DataFrame is empty
+    if df.empty:
+        # If DataFrame is empty, create a new DataFrame with one row and one column
+        df = pd.DataFrame([[0]], columns=["Number"])
+    else:
+        # If DataFrame is not empty, get the current number
+        current_number = df.iloc[0, 0]
+        # Increment the number
+        new_number = current_number + 1
+        # Set the new number in the DataFrame
+        df.iloc[0, 0] = new_number
+    
+    # Write the updated DataFrame to the Google Sheet
+    conn.write(df)
+
+# Main Streamlit app
 def main():
-    try:
-        creds = {
-            "type": st.secrets["google_sheets"]["type"],
-            "project_id": st.secrets["google_sheets"]["project_id"],
-            "private_key_id": st.secrets["google_sheets"]["private_key_id"],
-            "private_key": st.secrets["google_sheets"]["private_key"],
-            "client_email": st.secrets["google_sheets"]["client_email"],
-            "client_id": st.secrets["google_sheets"]["client_id"],
-            "auth_uri": st.secrets["google_sheets"]["auth_uri"],
-            "token_uri": st.secrets["google_sheets"]["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["google_sheets"]["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["google_sheets"]["client_x509_cert_url"]
-        }
-
-        st.write("Loaded credentials successfully.")
-        credentials = Credentials.from_service_account_info(creds)
-        client = gspread.authorize(credentials)
-
-        # Debugging the URL
-        spreadsheet_url = st.secrets["connections.gsheets"]["spreadsheet"]
-        st.write(f"Spreadsheet URL: {spreadsheet_url}")
-
-        # Open the Google Sheet using the URL from secrets
-        sheet = client.open_by_url(spreadsheet_url)
-        worksheet = sheet.get_worksheet(0)
-
-        # Read data from the sheet
-        data = worksheet.get_all_records()
-        st.write(data)
-
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+    st.title("Increment Number App")
+    
+    # Display the current number from the Google Sheet
+    df = conn.read()
+    if df.empty:
+        current_number = 0
+    else:
+        current_number = df.iloc[0, 0]  
+    st.write(f"Current number: {current_number}")
+    
+    # Button to increment the number
+    if st.button("Increment Number"):
+        increment_number()
+        st.write("Number incremented successfully!")
 
 if __name__ == "__main__":
     main()
