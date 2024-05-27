@@ -9,8 +9,11 @@ def increment_number():
     # Read the data from the Google Sheet
     df = conn.read()
     
-    # Get the current number
-    current_number = df.iloc[0, 0]  # elso sor elso oszlop?
+    # Get the current number if DataFrame is not empty
+    if not df.empty:
+        current_number = df.iloc[0, 0]  # Assuming the number is in the first row, first column
+    else:
+        current_number = 0  # If DataFrame is empty, set current number to 0
     
     # Increment the number
     new_number = current_number + 1
@@ -25,7 +28,11 @@ def main():
     
     # Display the current number from the Google Sheet
     df = conn.read()
-    current_number = df.iloc[0, 0]  
+    if not df.empty:
+        current_number = df.iloc[0, 0]  # Assuming the number is in the first row, first column
+    else:
+        current_number = 0  # If DataFrame is empty, set current number to 0
+    
     st.write(f"Current number: {current_number}")
     
     # Button to increment the number
