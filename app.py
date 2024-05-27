@@ -1,19 +1,24 @@
 import streamlit as st
-from google.oauth2 import service_account
 import gspread
+from google.oauth2 import service_account
 import pandas as pd
+import toml
+
+# Load secrets from secrets.toml
+secrets = toml.load("secrets.toml")
+
+# Google service account key
+service_account_info = secrets["google"]["service_account"]
 
 # Load the service account key JSON file
-with open('your_service_account_key.json') as f:
-    service_account_info = json.load(f)
-
 creds = service_account.Credentials.from_service_account_info(service_account_info)
 
 # Initialize a connection to Google Sheets
 client = gspread.authorize(creds)
 
 # Open the Google Sheet by name
-sheet = client.open("Your Google Sheet Name").sheet1  # Replace with your actual sheet name
+sheet_name = "Your Google Sheet Name"  # Replace with your actual sheet name
+sheet = client.open(sheet_name).sheet1
 
 def increment_number():
     # Read the current number from the first cell (A1)
