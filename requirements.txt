@@ -1,4 +1,4 @@
-st-gsheets-connection
-streamlit
-gspread
-google-auth
+streamlit==1.11.1
+gspread==5.4.0
+google-auth==2.15.0
+google-auth-oauthlib==0.7.1
